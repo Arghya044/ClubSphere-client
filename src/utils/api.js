@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://club-sphere-server-arghya.vercel.app';
 
 // Log API URL for debugging
 if (import.meta.env.DEV) {

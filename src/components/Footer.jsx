@@ -24,10 +24,10 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-bold mb-4">Connect</h3>
             <div className="flex space-x-4">
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-primary transition">
+              <a href="https://github.com/Arghya044" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-primary transition">
                 <FaGithub />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-primary transition">
+              <a href="www.linkedin.com/in/-biswas-arghya" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-primary transition">
                 <FaLinkedin />
               </a>
               <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-primary transition">
