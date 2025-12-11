@@ -110,5 +110,3 @@ const PaymentClub = () => {
 };
 
 export default PaymentClub;
-
-
