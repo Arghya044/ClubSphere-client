@@ -6,7 +6,7 @@ ClubSphere is a full-stack MERN web application that helps people discover, join
 
 ## Live URL
 
-[Add your deployed URL here]
+https://clubsphere-arghya.netlify.app
 
 ## Key Features
 
