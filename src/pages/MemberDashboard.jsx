@@ -1,13 +1,17 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { FaBuilding, FaCalendarAlt, FaDollarSign, FaCheckCircle } from 'react-icons/fa';
+import { FaBuilding, FaCalendarAlt, FaDollarSign, FaCheckCircle, FaSignOutAlt } from 'react-icons/fa';
 import api from '../utils/api';
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 const MemberDashboard = () => {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('overview');
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedMembership, setSelectedMembership] = useState(null);
 
   // Sync activeTab with URL path
   useEffect(() => {
@@ -46,6 +50,33 @@ const MemberDashboard = () => {
       return response.data;
     },
   });
+
+  const cancelMembershipMutation = useMutation({
+    mutationFn: async (membershipId) => {
+      const response = await api.delete(`/api/memberships/${membershipId}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Successfully left the club');
+      queryClient.invalidateQueries(['myMemberships']);
+      setCancelModalOpen(false);
+      setSelectedMembership(null);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to leave club');
+    },
+  });
+
+  const handleCancelClick = (membership) => {
+    setSelectedMembership(membership);
+    setCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (selectedMembership) {
+      cancelMembershipMutation.mutate(selectedMembership._id);
+    }
+  };
 
   const stats = {
     totalClubs: memberships?.filter((m) => m.status === 'active').length || 0,
@@ -229,6 +260,16 @@ const MemberDashboard = () => {
                               Pay Now
                             </Link>
                           )}
+                          {membership.status === 'active' && (
+                            <button
+                              onClick={() => handleCancelClick(membership)}
+                              className="btn btn-error btn-sm"
+                              disabled={cancelMembershipMutation.isPending}
+                            >
+                              <FaSignOutAlt className="mr-1" />
+                              Leave Club
+                            </button>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -385,6 +426,41 @@ const MemberDashboard = () => {
           </button>
         </div>
       </div>
+
+      {/* Cancel Membership Confirmation Modal */}
+      {cancelModalOpen && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">Leave Club?</h3>
+            <p className="py-4">
+              Are you sure you want to leave{' '}
+              <span className="font-semibold">
+                {selectedMembership?.club?.clubName || 'this club'}
+              </span>
+              ? This action cannot be undone.
+            </p>
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost"
+                onClick={() => {
+                  setCancelModalOpen(false);
+                  setSelectedMembership(null);
+                }}
+                disabled={cancelMembershipMutation.isPending}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-error"
+                onClick={handleConfirmCancel}
+                disabled={cancelMembershipMutation.isPending}
+              >
+                {cancelMembershipMutation.isPending ? 'Leaving...' : 'Leave Club'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
