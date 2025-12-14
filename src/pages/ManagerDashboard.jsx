@@ -5,15 +5,31 @@ import { useAuth } from '../context/AuthContext';
 import { FaBuilding, FaUsers, FaCalendarAlt, FaDollarSign, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const ManagerDashboard = () => {
   const { userData } = useAuth();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('overview');
   const [editingClub, setEditingClub] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
   const [selectedClubId, setSelectedClubId] = useState(null);
+
+  // Sync activeTab with URL path
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('/clubs')) {
+      setActiveTab('clubs');
+    } else if (path.includes('/events')) {
+      setActiveTab('events');
+    } else if (path.includes('/members')) {
+      setActiveTab('members');
+    } else {
+      setActiveTab('overview');
+    }
+  }, [location.pathname]);
 
   const { data: clubs, isLoading: clubsLoading } = useQuery({
     queryKey: ['managerClubs', userData?.email],
@@ -140,341 +156,342 @@ const ManagerDashboard = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8">Manager Dashboard</h1>
+    <div className="w-full overflow-x-auto">
+      <div className="min-w-0 w-full">
+        <h1 className="text-3xl font-bold mb-8">Manager Dashboard</h1>
 
-      {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="card bg-base-100 shadow-xl"
-          >
-            <div className="card-body">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-base-content/70">My Clubs</p>
-                  <p className="text-3xl font-bold">{stats.totalClubs}</p>
+        {activeTab === 'overview' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="card bg-base-100 shadow-xl"
+            >
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-base-content/70">My Clubs</p>
+                    <p className="text-3xl font-bold">{stats.totalClubs}</p>
+                  </div>
+                  <FaBuilding className="text-4xl text-primary" />
                 </div>
-                <FaBuilding className="text-4xl text-primary" />
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="card bg-base-100 shadow-xl"
-          >
-            <div className="card-body">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-base-content/70">Total Events</p>
-                  <p className="text-3xl font-bold">{stats.totalEvents}</p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="card bg-base-100 shadow-xl"
+            >
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-base-content/70">Total Events</p>
+                    <p className="text-3xl font-bold">{stats.totalEvents}</p>
+                  </div>
+                  <FaCalendarAlt className="text-4xl text-secondary" />
                 </div>
-                <FaCalendarAlt className="text-4xl text-secondary" />
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="card bg-base-100 shadow-xl"
-          >
-            <div className="card-body">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-base-content/70">Total Members</p>
-                  <p className="text-3xl font-bold">{stats.totalMembers}</p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="card bg-base-100 shadow-xl"
+            >
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-base-content/70">Total Members</p>
+                    <p className="text-3xl font-bold">{stats.totalMembers}</p>
+                  </div>
+                  <FaUsers className="text-4xl text-accent" />
                 </div>
-                <FaUsers className="text-4xl text-accent" />
               </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
+            </motion.div>
+          </div>
+        )}
 
-      {activeTab === 'clubs' && (
-        <div className="card bg-base-100 shadow-xl mb-8">
-          <div className="card-body">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="card-title">My Clubs</h2>
-              <button
-                onClick={() => setEditingClub({})}
-                className="btn btn-primary"
-              >
-                <FaPlus className="mr-2" /> Create Club
-              </button>
-            </div>
-
-            {editingClub && (
-              <ClubForm
-                club={editingClub}
-                onSubmit={(data) => {
-                  if (editingClub._id) {
-                    updateClubMutation.mutate({ id: editingClub._id, data });
-                  } else {
-                    createClubMutation.mutate(data);
-                  }
-                }}
-                onCancel={() => setEditingClub(null)}
-              />
-            )}
-
-            {clubsLoading ? (
-              <div className="flex justify-center">
-                <div className="spinner"></div>
+        {activeTab === 'clubs' && (
+          <div className="card bg-base-100 shadow-xl mb-8">
+            <div className="card-body">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <h2 className="card-title">My Clubs</h2>
+                <button
+                  onClick={() => setEditingClub({})}
+                  className="btn btn-primary w-full sm:w-auto"
+                >
+                  <FaPlus className="mr-2" /> Create Club
+                </button>
               </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="table w-full">
-                  <thead>
-                    <tr>
-                      <th>Club Name</th>
-                      <th>Category</th>
-                      <th>Fee</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {clubs?.map((club) => (
-                      <tr key={club._id}>
-                        <td>{club.clubName}</td>
-                        <td>{club.category}</td>
-                        <td>${club.membershipFee}</td>
-                        <td>
-                          <span
-                            className={`badge ${
-                              club.status === 'approved'
+
+              {editingClub && (
+                <ClubForm
+                  club={editingClub}
+                  onSubmit={(data) => {
+                    if (editingClub._id) {
+                      updateClubMutation.mutate({ id: editingClub._id, data });
+                    } else {
+                      createClubMutation.mutate(data);
+                    }
+                  }}
+                  onCancel={() => setEditingClub(null)}
+                />
+              )}
+
+              {clubsLoading ? (
+                <div className="flex justify-center">
+                  <div className="spinner"></div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="table w-full">
+                    <thead>
+                      <tr>
+                        <th className="min-w-[140px]">Club Name</th>
+                        <th className="min-w-[100px]">Category</th>
+                        <th className="min-w-[80px]">Fee</th>
+                        <th className="min-w-[90px]">Status</th>
+                        <th className="min-w-[80px]">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clubs?.map((club) => (
+                        <tr key={club._id}>
+                          <td className="min-w-[140px]">{club.clubName}</td>
+                          <td className="min-w-[100px]">{club.category}</td>
+                          <td className="min-w-[80px]">${club.membershipFee}</td>
+                          <td className="min-w-[90px]">
+                            <span
+                              className={`badge ${club.status === 'approved'
                                 ? 'badge-success'
                                 : club.status === 'pending'
-                                ? 'badge-warning'
-                                : 'badge-error'
-                            }`}
-                          >
-                            {club.status}
-                          </span>
-                        </td>
-                        <td>
-                          <button
-                            onClick={() => setEditingClub(club)}
-                            className="btn btn-sm btn-ghost"
-                          >
-                            <FaEdit />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'events' && (
-        <div className="card bg-base-100 shadow-xl mb-8">
-          <div className="card-body">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="card-title">Events</h2>
-              <button
-                onClick={() => setEditingEvent({})}
-                className="btn btn-primary"
-              >
-                <FaPlus className="mr-2" /> Create Event
-              </button>
-            </div>
-
-            {editingEvent && (
-              <EventForm
-                clubs={clubs}
-                event={editingEvent}
-                onSubmit={(data) => {
-                  if (editingEvent._id) {
-                    updateEventMutation.mutate({ id: editingEvent._id, data });
-                  } else {
-                    createEventMutation.mutate(data);
-                  }
-                }}
-                onCancel={() => setEditingEvent(null)}
-              />
-            )}
-
-            {eventsLoading ? (
-              <div className="flex justify-center">
-                <div className="spinner"></div>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="table w-full">
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Date</th>
-                      <th>Location</th>
-                      <th>Fee</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {events?.map((event) => (
-                      <tr key={event._id}>
-                        <td>{event.title}</td>
-                        <td>{new Date(event.eventDate).toLocaleDateString()}</td>
-                        <td>{event.location}</td>
-                        <td>{event.isPaid ? `$${event.eventFee}` : 'Free'}</td>
-                        <td>
-                          <div className="flex space-x-2">
+                                  ? 'badge-warning'
+                                  : 'badge-error'
+                                }`}
+                            >
+                              {club.status}
+                            </span>
+                          </td>
+                          <td className="min-w-[80px]">
                             <button
-                              onClick={() => setEditingEvent(event)}
+                              onClick={() => setEditingClub(club)}
                               className="btn btn-sm btn-ghost"
                             >
                               <FaEdit />
                             </button>
-                            <button
-                              onClick={() => {
-                                if (window.confirm('Are you sure you want to delete this event?')) {
-                                  deleteEventMutation.mutate(event._id);
-                                }
-                              }}
-                              className="btn btn-sm btn-error"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {editingEvent?._id && (
-              <div className="mt-8">
-                <h3 className="text-xl font-bold mb-4">Event Registrations</h3>
-                {registrationsLoading ? (
-                  <div className="flex justify-center">
-                    <div className="spinner"></div>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="table w-full">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Email</th>
-                          <th>Registered At</th>
-                          <th>Status</th>
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {eventRegistrations?.map((reg) => (
-                          <tr key={reg._id}>
-                            <td>{reg.user?.name || 'N/A'}</td>
-                            <td>{reg.userEmail}</td>
-                            <td>{new Date(reg.registeredAt).toLocaleDateString()}</td>
-                            <td>
-                              <span className="badge badge-success">{reg.status}</span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'members' && (
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title mb-4">Club Members</h2>
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text">Select Club</span>
-              </label>
-              <select
-                className="select select-bordered"
-                value={selectedClubId || ''}
-                onChange={(e) => setSelectedClubId(e.target.value)}
-              >
-                <option value="">Select a club</option>
-                {clubs?.map((club) => (
-                  <option key={club._id} value={club._id}>
-                    {club.clubName}
-                  </option>
-                ))}
-              </select>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-
-            {membersLoading ? (
-              <div className="flex justify-center">
-                <div className="spinner"></div>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="table w-full">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Joined At</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {members?.map((member) => (
-                      <tr key={member._id}>
-                        <td>{member.user?.name || 'N/A'}</td>
-                        <td>{member.userEmail}</td>
-                        <td>{new Date(member.joinedAt).toLocaleDateString()}</td>
-                        <td>
-                          <span className="badge badge-success">{member.status}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="tabs tabs-boxed mt-8">
-        <button
-          className={`tab ${activeTab === 'overview' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          Overview
-        </button>
-        <button
-          className={`tab ${activeTab === 'clubs' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('clubs')}
-        >
-          My Clubs
-        </button>
-        <button
-          className={`tab ${activeTab === 'events' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('events')}
-        >
-          Events
-        </button>
-        <button
-          className={`tab ${activeTab === 'members' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('members')}
-        >
-          Members
-        </button>
+        {activeTab === 'events' && (
+          <div className="card bg-base-100 shadow-xl mb-8">
+            <div className="card-body">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <h2 className="card-title">Events</h2>
+                <button
+                  onClick={() => setEditingEvent({})}
+                  className="btn btn-primary w-full sm:w-auto"
+                >
+                  <FaPlus className="mr-2" /> Create Event
+                </button>
+              </div>
+
+              {editingEvent && (
+                <EventForm
+                  clubs={clubs}
+                  event={editingEvent}
+                  onSubmit={(data) => {
+                    if (editingEvent._id) {
+                      updateEventMutation.mutate({ id: editingEvent._id, data });
+                    } else {
+                      createEventMutation.mutate(data);
+                    }
+                  }}
+                  onCancel={() => setEditingEvent(null)}
+                />
+              )}
+
+              {eventsLoading ? (
+                <div className="flex justify-center">
+                  <div className="spinner"></div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="table w-full">
+                    <thead>
+                      <tr>
+                        <th className="min-w-[140px]">Title</th>
+                        <th className="min-w-[100px]">Date</th>
+                        <th className="min-w-[120px]">Location</th>
+                        <th className="min-w-[80px]">Fee</th>
+                        <th className="min-w-[120px]">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {events?.map((event) => (
+                        <tr key={event._id}>
+                          <td className="min-w-[140px]">{event.title}</td>
+                          <td className="min-w-[100px]">{new Date(event.eventDate).toLocaleDateString()}</td>
+                          <td className="min-w-[120px]">{event.location}</td>
+                          <td className="min-w-[80px]">{event.isPaid ? `$${event.eventFee}` : 'Free'}</td>
+                          <td className="min-w-[120px]">
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <button
+                                onClick={() => setEditingEvent(event)}
+                                className="btn btn-sm btn-ghost"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (window.confirm('Are you sure you want to delete this event?')) {
+                                    deleteEventMutation.mutate(event._id);
+                                  }
+                                }}
+                                className="btn btn-sm btn-error"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {editingEvent?._id && (
+                <div className="mt-8">
+                  <h3 className="text-xl font-bold mb-4">Event Registrations</h3>
+                  {registrationsLoading ? (
+                    <div className="flex justify-center">
+                      <div className="spinner"></div>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="table w-full">
+                        <thead>
+                          <tr>
+                            <th className="min-w-[120px]">Name</th>
+                            <th className="min-w-[180px]">Email</th>
+                            <th className="min-w-[120px]">Registered At</th>
+                            <th className="min-w-[90px]">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {eventRegistrations?.map((reg) => (
+                            <tr key={reg._id}>
+                              <td className="min-w-[120px]">{reg.user?.name || 'N/A'}</td>
+                              <td className="min-w-[180px] break-all">{reg.userEmail}</td>
+                              <td className="min-w-[120px]">{new Date(reg.registeredAt).toLocaleDateString()}</td>
+                              <td className="min-w-[90px]">
+                                <span className="badge badge-success">{reg.status}</span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'members' && (
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title mb-4">Club Members</h2>
+              <div className="form-control mb-4">
+                <label className="label">
+                  <span className="label-text">Select Club</span>
+                </label>
+                <select
+                  className="select select-bordered"
+                  value={selectedClubId || ''}
+                  onChange={(e) => setSelectedClubId(e.target.value)}
+                >
+                  <option value="">Select a club</option>
+                  {clubs?.map((club) => (
+                    <option key={club._id} value={club._id}>
+                      {club.clubName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {membersLoading ? (
+                <div className="flex justify-center">
+                  <div className="spinner"></div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="table w-full">
+                    <thead>
+                      <tr>
+                        <th className="min-w-[120px]">Name</th>
+                        <th className="min-w-[180px]">Email</th>
+                        <th className="min-w-[100px]">Joined At</th>
+                        <th className="min-w-[90px]">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {members?.map((member) => (
+                        <tr key={member._id}>
+                          <td className="min-w-[120px]">{member.user?.name || 'N/A'}</td>
+                          <td className="min-w-[180px] break-all">{member.userEmail}</td>
+                          <td className="min-w-[100px]">{new Date(member.joinedAt).toLocaleDateString()}</td>
+                          <td className="min-w-[90px]">
+                            <span className="badge badge-success">{member.status}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="tabs tabs-boxed mt-8 flex flex-wrap gap-2 justify-center sm:justify-start">
+          <button
+            className={`tab flex-1 sm:flex-initial min-w-[90px] ${activeTab === 'overview' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview
+          </button>
+          <button
+            className={`tab flex-1 sm:flex-initial min-w-[90px] ${activeTab === 'clubs' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('clubs')}
+          >
+            My Clubs
+          </button>
+          <button
+            className={`tab flex-1 sm:flex-initial min-w-[90px] ${activeTab === 'events' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('events')}
+          >
+            Events
+          </button>
+          <button
+            className={`tab flex-1 sm:flex-initial min-w-[90px] ${activeTab === 'members' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('members')}
+          >
+            Members
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -685,5 +702,4 @@ const EventForm = ({ clubs, event, onSubmit, onCancel }) => {
 };
 
 export default ManagerDashboard;
-
 

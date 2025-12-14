@@ -114,5 +114,3 @@ const PaymentEvent = () => {
 };
 
 export default PaymentEvent;
-
-

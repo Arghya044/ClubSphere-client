@@ -32,25 +32,49 @@ const Clubs = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">All Clubs</h1>
-          <p className="text-base-content/70 text-lg">Discover clubs that match your interests</p>
+          <motion.h1
+            className="text-4xl md:text-5xl font-bold mb-4"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            All Clubs
+          </motion.h1>
+          <motion.p
+            className="text-base-content/70 text-lg"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            Discover clubs that match your interests
+          </motion.p>
         </motion.div>
 
         {/* Search and Filter Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          whileHover={{ scale: 1.01 }}
           className="card bg-base-100 shadow-lg mb-8"
         >
           <div className="card-body">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Search */}
-              <div className="form-control">
+              <motion.div
+                className="form-control"
+                whileHover={{ scale: 1.02 }}
+              >
                 <label className="label">
                   <span className="label-text">Search Clubs</span>
                 </label>
                 <div className="relative">
-                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/50" />
+                  <motion.div
+                    animate={{ rotate: search ? 360 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/50" />
+                  </motion.div>
                   <input
                     type="text"
                     placeholder="Search by name..."
@@ -59,10 +83,13 @@ const Clubs = () => {
                     onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
-              </div>
+              </motion.div>
 
               {/* Category Filter */}
-              <div className="form-control">
+              <motion.div
+                className="form-control"
+                whileHover={{ scale: 1.02 }}
+              >
                 <label className="label">
                   <span className="label-text">Category</span>
                 </label>
@@ -78,10 +105,13 @@ const Clubs = () => {
                     </option>
                   ))}
                 </select>
-              </div>
+              </motion.div>
 
               {/* Sort */}
-              <div className="form-control">
+              <motion.div
+                className="form-control"
+                whileHover={{ scale: 1.02 }}
+              >
                 <label className="label">
                   <span className="label-text">Sort By</span>
                 </label>
@@ -95,7 +125,7 @@ const Clubs = () => {
                   <option value="highestFee">Highest Fee</option>
                   <option value="lowestFee">Lowest Fee</option>
                 </select>
-              </div>
+              </motion.div>
             </div>
           </div>
         </motion.div>
@@ -118,13 +148,22 @@ const Clubs = () => {
             {clubs?.map((club, index) => (
               <motion.div
                 key={club._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="card bg-base-100 shadow-xl"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05, duration: 0.3 }}
+                whileHover={{
+                  y: -10,
+                  scale: 1.03,
+                  rotate: index % 2 === 0 ? 1 : -1,
+                  transition: { duration: 0.3 }
+                }}
+                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
               >
-                <figure>
+                <motion.figure
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
                   <img
                     src={club.bannerImage || 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800'}
                     alt={club.clubName}
@@ -133,23 +172,46 @@ const Clubs = () => {
                       e.target.src = 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800';
                     }}
                   />
-                </figure>
+                </motion.figure>
                 <div className="card-body">
-                  <h2 className="card-title">{club.clubName}</h2>
+                  <motion.h2
+                    className="card-title"
+                    whileHover={{ x: 5, color: '#570df8' }}
+                  >
+                    {club.clubName}
+                  </motion.h2>
                   <p className="text-base-content/70 line-clamp-3">{club.description}</p>
                   <div className="flex items-center justify-between mt-4">
-                    <span className="badge badge-primary">{club.category}</span>
-                    <span className="badge badge-outline">{club.location}</span>
+                    <motion.span
+                      className="badge badge-primary"
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                    >
+                      {club.category}
+                    </motion.span>
+                    <motion.span
+                      className="badge badge-outline"
+                      whileHover={{ scale: 1.1, rotate: -5 }}
+                    >
+                      {club.location}
+                    </motion.span>
                   </div>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-lg font-semibold">
+                    <motion.span
+                      className="text-lg font-semibold"
+                      whileHover={{ scale: 1.1, color: '#570df8' }}
+                    >
                       {club.membershipFee > 0 ? `$${club.membershipFee}` : 'Free'}
-                    </span>
+                    </motion.span>
                   </div>
                   <div className="card-actions justify-end mt-4">
-                    <Link to={`/clubs/${club._id}`} className="btn btn-primary btn-sm">
-                      View Details
-                    </Link>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Link to={`/clubs/${club._id}`} className="btn btn-primary btn-sm">
+                        View Details
+                      </Link>
+                    </motion.div>
                   </div>
                 </div>
               </motion.div>
@@ -162,5 +224,4 @@ const Clubs = () => {
 };
 
 export default Clubs;
-
 

@@ -28,24 +28,48 @@ const Events = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Upcoming Events</h1>
-          <p className="text-base-content/70 text-lg">Discover exciting events from local clubs</p>
+          <motion.h1
+            className="text-4xl md:text-5xl font-bold mb-4"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            Upcoming Events
+          </motion.h1>
+          <motion.p
+            className="text-base-content/70 text-lg"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            Discover exciting events from local clubs
+          </motion.p>
         </motion.div>
 
         {/* Search and Sort Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          whileHover={{ scale: 1.01 }}
           className="card bg-base-100 shadow-lg mb-8"
         >
           <div className="card-body">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
+              <motion.div
+                className="form-control"
+                whileHover={{ scale: 1.02 }}
+              >
                 <label className="label">
                   <span className="label-text">Search Events</span>
                 </label>
                 <div className="relative">
-                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/50" />
+                  <motion.div
+                    animate={{ rotate: search ? 360 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/50" />
+                  </motion.div>
                   <input
                     type="text"
                     placeholder="Search by title..."
@@ -54,9 +78,12 @@ const Events = () => {
                     onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="form-control">
+              <motion.div
+                className="form-control"
+                whileHover={{ scale: 1.02 }}
+              >
                 <label className="label">
                   <span className="label-text">Sort By</span>
                 </label>
@@ -69,7 +96,7 @@ const Events = () => {
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
                 </select>
-              </div>
+              </motion.div>
             </div>
           </div>
         </motion.div>
@@ -92,34 +119,60 @@ const Events = () => {
             {events?.map((event, index) => (
               <motion.div
                 key={event._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="card bg-base-100 shadow-xl"
+                initial={{ opacity: 0, scale: 0.9, rotateY: -10 }}
+                animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                transition={{ delay: index * 0.05, duration: 0.4 }}
+                whileHover={{
+                  y: -10,
+                  scale: 1.03,
+                  rotateY: 5,
+                  transition: { duration: 0.3 }
+                }}
+                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
               >
                 <div className="card-body">
-                  <h2 className="card-title">{event.title}</h2>
+                  <motion.h2
+                    className="card-title"
+                    whileHover={{ x: 5, color: '#570df8' }}
+                  >
+                    {event.title}
+                  </motion.h2>
                   <p className="text-base-content/70 line-clamp-3">{event.description}</p>
                   <div className="flex items-center space-x-4 mt-4 text-sm">
-                    <div className="flex items-center space-x-1">
+                    <motion.div
+                      className="flex items-center space-x-1"
+                      whileHover={{ scale: 1.1, x: 5 }}
+                    >
                       <FaCalendarAlt />
                       <span>{new Date(event.eventDate).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
+                    </motion.div>
+                    <motion.div
+                      className="flex items-center space-x-1"
+                      whileHover={{ scale: 1.1, x: 5 }}
+                    >
                       <FaMapMarkerAlt />
                       <span>{event.location}</span>
-                    </div>
+                    </motion.div>
                   </div>
                   {event.isPaid && (
                     <div className="mt-2">
-                      <span className="badge badge-primary">${event.eventFee}</span>
+                      <motion.span
+                        className="badge badge-primary"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                      >
+                        ${event.eventFee}
+                      </motion.span>
                     </div>
                   )}
                   <div className="card-actions justify-end mt-4">
-                    <Link to={`/events/${event._id}`} className="btn btn-primary btn-sm">
-                      View Details
-                    </Link>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Link to={`/events/${event._id}`} className="btn btn-primary btn-sm">
+                        View Details
+                      </Link>
+                    </motion.div>
                   </div>
                 </div>
               </motion.div>
@@ -132,5 +185,4 @@ const Events = () => {
 };
 
 export default Events;
-
 

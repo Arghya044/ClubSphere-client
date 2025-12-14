@@ -152,8 +152,10 @@ const DashboardLayout = () => {
         )}
 
         {/* Main Content */}
-        <main className="flex-1 p-4 md:p-8">
-          <Outlet />
+        <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-auto min-w-0">
+          <div className="min-w-[280px]">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
@@ -161,5 +163,4 @@ const DashboardLayout = () => {
 };
 
 export default DashboardLayout;
-
 

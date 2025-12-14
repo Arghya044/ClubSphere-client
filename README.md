@@ -208,8 +208,11 @@ ClubSphere/
 ## Super Admin
 
 The super admin account is automatically created on server startup:
-- Email:
-- Password: 
+- Email: arghya.rkbk19@gmail.com
+- Password: Arghya123
 
 This account is created only once and can control all activities on the platform.
 
+## License
+
+This project is created for educational purposes.

@@ -26,5 +26,3 @@ const PaymentCancel = () => {
 };
 
 export default PaymentCancel;
-
-
