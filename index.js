@@ -642,6 +642,36 @@ app.get('/api/memberships/club/:clubId/members', verifyToken, async (req, res) =
   }
 });
 
+
+app.delete('/api/memberships/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid membership ID' });
+    }
+
+    const membershipsCollection = db.collection('memberships');
+    const membership = await membershipsCollection.findOne({ _id: createObjectId(id) });
+
+    if (!membership) {
+      return res.status(404).json({ message: 'Membership not found' });
+    }
+
+    // Only the member who owns the membership can delete it
+    if (membership.userEmail !== req.user.email) {
+      return res.status(403).json({ message: 'You can only cancel your own memberships' });
+    }
+
+    // Delete the membership
+    await membershipsCollection.deleteOne({ _id: createObjectId(id) });
+
+    res.json({ message: 'Successfully left the club' });
+  } catch (error) {
+    console.error('Delete membership error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // ==================== PAYMENT ROUTES ====================
 
 app.post('/api/payments/create-payment-intent', verifyToken, async (req, res) => {
